@@ -3,34 +3,39 @@
     <h1>Users</h1>
     <ul>
       <li v-for="user in users" :key="user.id">
-        {{ user.name }}
+        {{ user.name }} ({{ user.email }})
       </li>
     </ul>
   </div>
 </template>
 
 <script>
-import { gql } from '@apollo/client/core';
+import { ref, watch } from "vue";
+import { useQuery } from "@vue/apollo-composable";
+import gql from "graphql-tag";
 
 export default {
-  name: 'UserList', // Users -> UserList
-  data() {
-    return {
-      users: [],
-    };
-  },
-  async created() {
-    const { data } = await this.$apollo.query({
-      query: gql`
-        query {
-          users {
-            id
-            name
-          }
+  name: "UserList",
+  setup() {
+    const users = ref([]);
+
+    const { result } = useQuery(gql`
+      query Users {
+        users {
+          id
+          name
+          email
         }
-      `,
+      }
+    `);
+
+    watch(result, (newValue) => {
+      if (newValue && newValue.data) {
+        users.value = newValue.data.users;
+      }
     });
-    this.users = data.users;
+
+    return { users };
   },
 };
 </script>
