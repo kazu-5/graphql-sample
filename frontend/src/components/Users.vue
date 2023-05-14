@@ -21,7 +21,7 @@ export default {
 
     const { result } = useQuery(gql`
       query Users {
-        users {
+        user {
           id
           name
           email
